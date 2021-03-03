@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pickers/more_pickers/init_data.dart';
 import 'package:flutter_pickers/style/picker_style.dart';
 
-typedef SingleCallback(var data);
+typedef void SingleCallback<T>(T data);
+typedef String ResolveFunction<T>(T data);
 
 class SinglePickerRoute<T> extends PopupRoute<T> {
   SinglePickerRoute({
     this.data,
     this.selectData,
+    this.resolve,
     this.suffix,
     this.onChanged,
     this.onConfirm,
@@ -18,10 +20,11 @@ class SinglePickerRoute<T> extends PopupRoute<T> {
     RouteSettings settings,
   }) : super(settings: settings);
 
-  final dynamic selectData;
+  final T selectData;
   final dynamic data;
-  final SingleCallback onChanged;
-  final SingleCallback onConfirm;
+  ResolveFunction<T> resolve;
+  final SingleCallback<T> onChanged;
+  final SingleCallback<T> onConfirm;
   final ThemeData theme;
 
   final String suffix;
@@ -50,10 +53,10 @@ class SinglePickerRoute<T> extends PopupRoute<T> {
 
   @override
   Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-    List mData = [];
+    List<T> mData = [];
     // 初始化数据
     if (data is PickerDataType) {
-      mData = pickerData[data];
+      mData = pickerData[data].cast<T>();
     } else if (data is List) {
       mData.addAll(data);
     }
@@ -61,7 +64,7 @@ class SinglePickerRoute<T> extends PopupRoute<T> {
     Widget bottomSheet = MediaQuery.removePadding(
       context: context,
       removeTop: true,
-      child: _PickerContentView(
+      child: _PickerContentView<T>(
         data: mData,
         selectData: selectData,
         pickerStyle: pickerStyle,
@@ -76,7 +79,7 @@ class SinglePickerRoute<T> extends PopupRoute<T> {
   }
 }
 
-class _PickerContentView extends StatefulWidget {
+class _PickerContentView<T> extends StatefulWidget {
   _PickerContentView({
     Key key,
     this.data,
@@ -85,19 +88,19 @@ class _PickerContentView extends StatefulWidget {
     @required this.route,
   }) : super(key: key);
 
-  final List data;
-  final dynamic selectData;
-  final SinglePickerRoute route;
+  final List<T> data;
+  final T selectData;
+  final SinglePickerRoute<T> route;
   final PickerStyle pickerStyle;
 
   @override
-  State<StatefulWidget> createState() => _PickerState(this.data, this.selectData, this.pickerStyle);
+  State<StatefulWidget> createState() => _PickerState<T>(this.data, this.selectData, this.pickerStyle);
 }
 
-class _PickerState extends State<_PickerContentView> {
+class _PickerState<T> extends State<_PickerContentView<T>> {
   final PickerStyle _pickerStyle;
-  var _selectData;
-  List _data = [];
+  T _selectData;
+  List<T> _data = [];
 
   AnimationController controller;
   Animation<double> animation;
@@ -229,7 +232,7 @@ class _PickerState extends State<_PickerContentView> {
       },
       childCount: _data.length,
       itemBuilder: (_, index) {
-        String text = _data[index].toString();
+        String text = T == String ? _data[index] : widget.route.resolve(_data[index]);
         return Align(
             alignment: Alignment.center,
             child: Text(text,

@@ -3,6 +3,7 @@ import 'package:example/widget/my_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pickers/pickers.dart';
 import 'package:flutter_pickers/style/picker_style.dart';
+import 'package:flutter_pickers/address_picker/model/Address.dart';
 
 class AddressPickerPage extends StatefulWidget {
   @override
@@ -11,7 +12,8 @@ class AddressPickerPage extends StatefulWidget {
 
 class _AddressPickerPageState extends State<AddressPickerPage> {
   // 所在区域  省 市 区
-  String initProvince = '四川省', initCity = '成都市', initTown = '双流区';
+  // String initProvince = '四川省', initCity = '成都市', initTown = '双流区';
+  Address initAddress = Address('四川省', '成都市', '双流区');
 
   // 选择器2
   List locations1 = ['', ''];
@@ -44,25 +46,28 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
   }
 
   Widget _checkLocation() {
-    Widget textView = Text(spliceCityName(pname: initProvince, cname: initCity, tname: initTown));
+    Widget textView = Text(spliceCityName(pname: initAddress.provinceName, cname: initAddress.cityName, tname: initAddress.townName));
 
     return InkWell(
       onTap: () {
         Pickers.showAddressPicker(
           context,
-          initProvince: initProvince,
-          initCity: initCity,
-          initTown: initTown,
-          onConfirm: (p, c, t) {
+          // initProvince: initProvince,
+          // initCity: initCity,
+          // initTown: initTown,
+          initAddress: initAddress,
+          onConfirm: (Address address) {
             setState(() {
-              initProvince = p;
-              initCity = c;
-              initTown = t;
+              // initProvince = p;
+              // initCity = c;
+              // initTown = t;
+              initAddress = address;
+              // print(initAddress.toJson());
             });
           },
         );
       },
-      child: _outsideView(textView, initProvince, initCity, initTown),
+      child: _outsideView(textView, initAddress.provinceName, initAddress.cityName, initAddress.townName),
     );
   }
 
@@ -73,13 +78,14 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
       onTap: () {
         Pickers.showAddressPicker(
           context,
-          initProvince: locations1[0],
-          initCity: locations1[1],
+          // initProvince: locations1[0],
+          // initCity: locations1[1],
           // initTown: null,
-          onConfirm: (p, c, t) {
+          initAddress: Address(locations1[0], locations1[1], null),
+          onConfirm: (Address address) {
             setState(() {
-              locations1[0] = p;
-              locations1[1] = c;
+              locations1[0] = address.provinceName;
+              locations1[1] = address.cityName;
             });
           },
         );
@@ -136,18 +142,19 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
       onTap: () {
         Pickers.showAddressPicker(
           context,
-          initProvince: locations2[0],
-          initCity: locations2[1],
-          initTown: locations2[2],
+          // initProvince: locations2[0],
+          // initCity: locations2[1],
+          // initTown: locations2[2],
+          initAddress: Address(locations2[0], locations2[1], locations2[2]),
 
           pickerStyle : pickerStyle,
 
           addAllItem: false,
-          onConfirm: (p, c, t) {
+          onConfirm: (Address address) {
             setState(() {
-              locations2[0] = p;
-              locations2[1] = c;
-              locations2[2] = t;
+              locations2[0] = address.provinceName;
+              locations2[1] = address.cityName;
+              locations2[2] = address.townName;
             });
           },
         );

@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pickers/address_picker/model/Address.dart';
 import 'package:flutter_pickers/style/picker_style.dart';
 
 import '../locations_data.dart';
 
-typedef AddressCallback(String province, String city, String town);
+typedef AddressCallback(Address address);
 
 /// 自定义 地区选择器
 /// [initProvince] 初始化 省
@@ -17,9 +18,10 @@ class AddressPickerRoute<T> extends PopupRoute<T> {
   AddressPickerRoute({
     this.addAllItem,
     this.pickerStyle,
-    this.initProvince,
-    this.initCity,
-    this.initTown,
+    // this.initProvince,
+    // this.initCity,
+    // this.initTown,
+    this.initAddress,
     this.onChanged,
     this.onConfirm,
     this.theme,
@@ -27,7 +29,8 @@ class AddressPickerRoute<T> extends PopupRoute<T> {
     RouteSettings settings,
   }) : super(settings: settings);
 
-  final String initProvince, initCity, initTown;
+  // final String initProvince, initCity, initTown;
+  final Address initAddress;
   final AddressCallback onChanged;
   final AddressCallback onConfirm;
   final ThemeData theme;
@@ -52,19 +55,22 @@ class AddressPickerRoute<T> extends PopupRoute<T> {
   @override
   AnimationController createAnimationController() {
     assert(_animationController == null);
-    _animationController = BottomSheet.createAnimationController(navigator.overlay);
+    _animationController =
+        BottomSheet.createAnimationController(navigator.overlay);
     return _animationController;
   }
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
     Widget bottomSheet = MediaQuery.removePadding(
       context: context,
       removeTop: true,
       child: _PickerContentView(
-        initProvince: initProvince,
-        initCity: initCity,
-        initTown: initTown,
+        // initProvince: initProvince,
+        // initCity: initCity,
+        // initTown: initTown,
+        initAddress: initAddress,
         addAllItem: addAllItem,
         pickerStyle: pickerStyle,
         route: this,
@@ -81,30 +87,38 @@ class AddressPickerRoute<T> extends PopupRoute<T> {
 class _PickerContentView extends StatefulWidget {
   _PickerContentView({
     Key key,
-    this.initProvince,
-    this.initCity,
-    this.initTown,
+    // this.initProvince,
+    // this.initCity,
+    // this.initTown,
+    this.initAddress,
     this.pickerStyle,
     this.addAllItem,
     @required this.route,
   }) : super(key: key);
 
-  final String initProvince, initCity, initTown;
+  // final String initProvince, initCity, initTown;
+  final Address initAddress;
   final AddressPickerRoute route;
   final bool addAllItem;
   final PickerStyle pickerStyle;
 
   @override
-  State<StatefulWidget> createState() =>
-      _PickerState(this.initProvince, this.initCity, this.initTown, this.addAllItem, this.pickerStyle);
+  State<StatefulWidget> createState() => _PickerState(
+      // this.initProvince,
+      // this.initCity,
+      // this.initTown,
+      this.initAddress,
+      this.addAllItem,
+      this.pickerStyle);
 }
 
 class _PickerState extends State<_PickerContentView> {
   final PickerStyle _pickerStyle;
-  String _currentProvince, _currentCity, _currentTown;
-  var cities = [];
-  var towns = [];
-  var provinces = [];
+  // String _currentProvince, _currentCity, _currentTown;
+  Address _address;
+  List<MapEntry<String, String>> cities = [];
+  List<MapEntry<String, String>> towns = [];
+  List<MapEntry<String, String>> provinces = [];
 
   // 是否显示县级
   bool hasTown = true;
@@ -115,11 +129,16 @@ class _PickerState extends State<_PickerContentView> {
   AnimationController controller;
   Animation<double> animation;
 
-  FixedExtentScrollController provinceScrollCtrl, cityScrollCtrl, townScrollCtrl;
+  FixedExtentScrollController provinceScrollCtrl,
+      cityScrollCtrl,
+      townScrollCtrl;
 
-  _PickerState(this._currentProvince, this._currentCity, this._currentTown, this.addAllItem, this._pickerStyle) {
-    provinces = Address.provinces;
-    hasTown = this._currentTown != null;
+  _PickerState(
+      // this._currentProvince, this._currentCity, this._currentTown,
+      this._address,
+      this.addAllItem, this._pickerStyle) {
+    provinces = AddressService.provinces;
+    hasTown = this._address.townCode != null;
 
     _init();
   }
@@ -141,7 +160,8 @@ class _PickerState extends State<_PickerContentView> {
         builder: (BuildContext context, Widget child) {
           return ClipRect(
             child: CustomSingleChildLayout(
-              delegate: _BottomPickerLayout(widget.route.animation.value, this._pickerStyle),
+              delegate: _BottomPickerLayout(
+                  widget.route.animation.value, this._pickerStyle),
               child: GestureDetector(
                 child: Material(
                   color: Colors.transparent,
@@ -156,32 +176,38 @@ class _PickerState extends State<_PickerContentView> {
   }
 
   _init() {
-    Address.addAllItem = addAllItem;
+    AddressService.addAllItem = addAllItem;
     int pindex = 0;
     int cindex = 0;
     int tindex = 0;
-    pindex = provinces.indexWhere((p) => p == _currentProvince);
+    pindex = provinces.indexWhere((p) => p.key == _address.provinceCode);
+    // pindex = provinces.indexWhere((p) => p == _currentProvince);
     pindex = pindex >= 0 ? pindex : 0;
-    String selectedProvince = provinces[pindex];
+    MapEntry<String, String> selectedProvince = provinces[pindex];
     if (selectedProvince != null) {
-      _currentProvince = selectedProvince;
+      // _currentProvince = selectedProvince;
+      _address.provinceCode = selectedProvince.key;
+      _address.provinceName = selectedProvince.value;
+      cities = AddressService.getCities(selectedProvince);
 
-      cities = Address.getCities(selectedProvince);
-
-      cindex = cities.indexWhere((c) => c['name'] == _currentCity);
+      cindex = cities.indexWhere((c) => c.key == _address.cityCode);
       cindex = cindex >= 0 ? cindex : 0;
-      _currentCity = cities[cindex]['name'];
+      MapEntry<String, String> _currentCity = cities[cindex];
+      _address.cityCode = _currentCity.key;
+      _address.cityName = _currentCity.value;
 
       // print('longer >>> 外面接到的$cities');
 
       if (hasTown) {
-        towns = Address.getTowns(cities[cindex]['cityCode']);
-        tindex = towns.indexWhere((t) => t == _currentTown);
+        towns = AddressService.getTowns(cities[cindex]);
+        tindex = towns.indexWhere((t) => t.key == _address.townCode);
         tindex = tindex >= 0 ? tindex : 0;
         if (towns.length == 0) {
-          _currentTown = '';
+          _address.townCode = '';
+          _address.townName = '';
         } else {
-          _currentTown = towns[tindex];
+          _address.townCode = towns[tindex].key;
+          _address.townName = towns[tindex].value;
         }
       }
     }
@@ -192,21 +218,26 @@ class _PickerState extends State<_PickerContentView> {
   }
 
   void _setProvince(int index) {
-    String selectedProvince = provinces[index];
+    MapEntry<String, String> selectedProvince = provinces[index];
     // print('longer >>> index:$index  _currentProvince:$_currentProvince selectedProvince:$selectedProvince ');
-
-    if (_currentProvince != selectedProvince) {
+    if (_address.provinceCode != selectedProvince.key) {
       setState(() {
-        _currentProvince = selectedProvince;
+        _address.provinceCode = selectedProvince.key;
+        _address.provinceName = selectedProvince.value;
 
-        cities = Address.getCities(selectedProvince);
+        cities = AddressService.getCities(selectedProvince);
         // print('longer >>> 返回的城市数据：$cities');
 
-        _currentCity = cities[0]['name'];
+        _address.cityCode = cities[0].key;
+        _address.cityName = cities[0].value;
+        cityScrollCtrl.jumpToItem(-1);
         cityScrollCtrl.jumpToItem(0);
         if (hasTown) {
-          towns = Address.getTowns(cities[0]['cityCode']);
-          _currentTown = towns[0];
+          towns = AddressService.getTowns(cities[0]);
+          // _currentTown = towns[0];
+          _address.townCode = towns[0].key;
+          _address.townName = towns[0].value;
+          townScrollCtrl.jumpToItem(-1);
           townScrollCtrl.jumpToItem(0);
         }
       });
@@ -217,13 +248,21 @@ class _PickerState extends State<_PickerContentView> {
 
   void _setCity(int index) {
     index = cities.length > index ? index : 0;
-    String selectedCity = cities[index]['name'];
-    if (_currentCity != selectedCity) {
+    MapEntry<String, String> selectedCity = cities[index];
+    if (_address.cityCode != selectedCity.key) {
       setState(() {
-        _currentCity = selectedCity;
+        _address.cityCode = selectedCity.key;
+        _address.cityName = selectedCity.value;
         if (hasTown) {
-          towns = Address.getTowns(cities[index]['cityCode']);
-          _currentTown = towns.isNotEmpty ? towns[0] : '';
+          towns = AddressService.getTowns(cities[index]);
+          if (towns != null && towns.length > 0) {
+            _address.townCode = towns[0].key;
+            _address.townName = towns[0].value;
+          } else {
+            _address.townCode = '';
+            _address.townName = '';
+          }
+          townScrollCtrl.jumpToItem(-1);
           townScrollCtrl.jumpToItem(0);
         }
       });
@@ -234,16 +273,17 @@ class _PickerState extends State<_PickerContentView> {
 
   void _setTown(int index) {
     index = towns.length > index ? index : 0;
-    String selectedTown = towns[index];
-    if (_currentTown != selectedTown) {
-      _currentTown = selectedTown;
+    MapEntry<String, String> selectedTown = towns[index];
+    if (_address.townCode != selectedTown.key) {
+      _address.townCode = selectedTown.key;
+      _address.townName = selectedTown.value;
       _notifyLocationChanged();
     }
   }
 
   void _notifyLocationChanged() {
     if (widget.route.onChanged != null) {
-      widget.route.onChanged(_currentProvince, _currentCity, _currentTown);
+      widget.route.onChanged(_address);
     }
   }
 
@@ -293,13 +333,15 @@ class _PickerState extends State<_PickerContentView> {
                 onSelectedItemChanged: (int index) {
                   _setProvince(index);
                 },
-                childCount: Address.provinces.length,
+                childCount: AddressService.provinces.length,
                 itemBuilder: (_, index) {
-                  String text = Address.provinces[index];
+                  String text = AddressService.provinces[index].value;
                   return Align(
                       alignment: Alignment.center,
                       child: Text(text,
-                          style: TextStyle(color: _pickerStyle.textColor, fontSize: _pickerFontSize(text)),
+                          style: TextStyle(
+                              color: _pickerStyle.textColor,
+                              fontSize: _pickerFontSize(text)),
                           textAlign: TextAlign.start));
                 },
               ),
@@ -316,11 +358,13 @@ class _PickerState extends State<_PickerContentView> {
                   },
                   childCount: cities.length,
                   itemBuilder: (_, index) {
-                    String text = cities[index]['name'];
+                    String text = cities[index].value;
                     return Align(
                       alignment: Alignment.center,
                       child: Text('$text',
-                          style: TextStyle(color: _pickerStyle.textColor, fontSize: _pickerFontSize(text)),
+                          style: TextStyle(
+                              color: _pickerStyle.textColor,
+                              fontSize: _pickerFontSize(text)),
                           textAlign: TextAlign.start),
                     );
                   },
@@ -338,11 +382,13 @@ class _PickerState extends State<_PickerContentView> {
                         },
                         childCount: towns.length,
                         itemBuilder: (_, index) {
-                          String text = towns[index];
+                          String text = towns[index].value;
                           return Align(
                             alignment: Alignment.center,
                             child: Text(text,
-                                style: TextStyle(color: _pickerStyle.textColor, fontSize: _pickerFontSize(text)),
+                                style: TextStyle(
+                                    color: _pickerStyle.textColor,
+                                    fontSize: _pickerFontSize(text)),
                                 textAlign: TextAlign.start),
                           );
                         },
@@ -364,7 +410,9 @@ class _PickerState extends State<_PickerContentView> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           /// 取消按钮
-          InkWell(onTap: () => Navigator.pop(context), child: _pickerStyle.cancelButton),
+          InkWell(
+              onTap: () => Navigator.pop(context),
+              child: _pickerStyle.cancelButton),
 
           /// 标题
           Expanded(child: _pickerStyle.title),
@@ -372,7 +420,8 @@ class _PickerState extends State<_PickerContentView> {
           /// 确认按钮
           InkWell(
               onTap: () {
-                widget.route?.onConfirm(_currentProvince, _currentCity, _currentTown);
+                widget.route
+                    ?.onConfirm(_address);
                 Navigator.pop(context);
               },
               child: _pickerStyle.commitButton)
@@ -399,7 +448,10 @@ class _BottomPickerLayout extends SingleChildLayoutDelegate {
     }
 
     return BoxConstraints(
-        minWidth: constraints.maxWidth, maxWidth: constraints.maxWidth, minHeight: 0.0, maxHeight: maxHeight);
+        minWidth: constraints.maxWidth,
+        maxWidth: constraints.maxWidth,
+        minHeight: 0.0,
+        maxHeight: maxHeight);
   }
 
   @override

@@ -10,25 +10,31 @@ import 'package:flutter_pickers/time_picker/model/pduration.dart';
 import 'package:flutter_pickers/time_picker/route/date_picker_route.dart';
 import 'package:flutter_pickers/time_picker/model/suffix.dart';
 
+import 'address_picker/model/Address.dart';
 import 'time_picker/model/date_item_model.dart';
 
 /// [onChanged]   选择器发生变动
 /// [onConfirm]   选择器提交
 /// [pickerStyle] 样式
 /// [suffix] 后缀
+/// [resolve] 对象T的解析方法
 class Pickers {
   /// 单列 通用选择器
-  static void showSinglePicker(
+  static void showSinglePicker<T>(
     BuildContext context, {
     @required dynamic data,
-    dynamic selectData,
+    T selectData,
+    ResolveFunction<T> resolve,
     String suffix,
     PickerStyle pickerStyle,
-    SingleCallback onChanged,
-    SingleCallback onConfirm,
+    SingleCallback<T> onChanged,
+    SingleCallback<T> onConfirm,
   }) {
     assert(data != null, 'params: data can not be null');
-    assert((data is List) || (data is PickerDataType), 'params : data must List or PickerDataType');
+    assert((data is List<T>) || (data is PickerDataType),
+        'params : data must List or PickerDataType');
+    assert((data is List<T>) && (resolve != null) || data is List<String> || data is PickerDataType,
+        'if data is not type of List<String>, parameter resolve can not be null');
 
     if (pickerStyle == null) {
       pickerStyle = DefaultPickerStyle();
@@ -39,16 +45,18 @@ class Pickers {
 
     Navigator.push(
         context,
-        SinglePickerRoute(
+        SinglePickerRoute<T>(
           data: data,
           suffix: suffix,
           selectData: selectData,
+          resolve: resolve,
           pickerStyle: pickerStyle,
           onChanged: onChanged,
           onConfirm: onConfirm,
           // theme: Theme.of(context, shadowThemeOnly: true),
           theme: Theme.of(context),
-          barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          barrierLabel:
+              MaterialLocalizations.of(context).modalBarrierDismissLabel,
         ));
   }
 
@@ -85,7 +93,8 @@ class Pickers {
           onConfirm: onConfirm,
           // theme: Theme.of(context, shadowThemeOnly: true),
           theme: Theme.of(context),
-          barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          barrierLabel:
+              MaterialLocalizations.of(context).modalBarrierDismissLabel,
         ));
   }
 
@@ -99,9 +108,10 @@ class Pickers {
   static void showAddressPicker(
     BuildContext context, {
     PickerStyle pickerStyle,
-    String initProvince: '',
-    String initCity: '',
-    String initTown,
+    // String initProvince: '',
+    // String initCity: '',
+    // String initTown,
+    Address initAddress,
     bool addAllItem: true,
     AddressCallback onChanged,
     AddressCallback onConfirm,
@@ -117,14 +127,16 @@ class Pickers {
         context,
         AddressPickerRoute(
           pickerStyle: pickerStyle,
-          initProvince: initProvince,
-          initCity: initCity,
-          initTown: initTown,
+          // initProvince: initProvince,
+          // initCity: initCity,
+          // initTown: initTown,
+          initAddress: initAddress,
           onChanged: onChanged,
           onConfirm: onConfirm,
           addAllItem: addAllItem,
           theme: Theme.of(context),
-          barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          barrierLabel:
+              MaterialLocalizations.of(context).modalBarrierDismissLabel,
         ));
   }
 
@@ -193,7 +205,8 @@ class Pickers {
           onConfirm: onConfirm,
           // theme: Theme.of(context, shadowThemeOnly: true),
           theme: Theme.of(context),
-          barrierLabel: MaterialLocalizations.of(context).modalBarrierDismissLabel,
+          barrierLabel:
+              MaterialLocalizations.of(context).modalBarrierDismissLabel,
         ));
   }
 }

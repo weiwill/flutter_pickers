@@ -37,8 +37,15 @@ class _SinglePickerPageState extends State<SinglePickerPage> {
         _item('自定义数据 (单列)', ['PHP', 'JAVA', 'C++', 'Dart', 'Python', 'Go'], "Dart"),
         _item('身高', List.generate(200, (index) => (50 + index).toString()), "168", label: 'cm'),
         _item('温度', List.generate(110, (index) => (33.0 + index * .1).toString()), "37.5", label: '℃'),
-        _item('Laber', [123, '空', '空空', '空空空', '空空空空', '空空空空空', '空空空空空空', '空空空空空空空'], 123, label: 'kg'),
+        _item('Laber', ['空', '空空', '空空空', '空空空空', '空空空空空', '空空空空空空', '空空空空空空空'], '空', label: 'kg'),
         // _item('Laber', [123, 23,235,3,14545,15,123163,18548,9646,1313], 235, label: 'kg'),
+        _item<Map<String, String>>('自定义数据类型', [
+          {'id': '1', 'name': '张三'},
+          {'id': '2', 'name': '李四'},
+          {'id': '3', 'name': '王五'},
+            ], {'id': '2', 'name': '李四'}, resolve: (Map<String, String> data) => data['name']
+
+        ),
         _item2('自定义样式'),
 
         _demo(),
@@ -67,16 +74,16 @@ class _SinglePickerPageState extends State<SinglePickerPage> {
         child: Text('Demo : $initData'));
   }
 
-  Widget _item(title, var data, var selectData, {String label}) {
+  Widget _item<T>(title, var data, T selectData, {String label, Function(T) resolve}) {
     return Column(
       children: [
         Container(
           color: Colors.white,
           child: ListTile(
             title: Text(title),
-            onTap: () => _onClickItem(data, selectData, label: label),
+            onTap: () => _onClickItem<T>(data, selectData, label: label, resolve: resolve),
             trailing: Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              MyText(selectData.toString() ?? '暂无', color: Colors.grey, rightpadding: 18),
+              MyText(T == String ? selectData : resolve(selectData) ?? '暂无', color: Colors.grey, rightpadding: 18),
               rightIcon
             ]),
           ),
@@ -86,29 +93,30 @@ class _SinglePickerPageState extends State<SinglePickerPage> {
     );
   }
 
-  void _onClickItem(var data, var selectData, {String label}) {
-    Pickers.showSinglePicker(
+  void _onClickItem<T>(var data, T selectData, {String label, Function(T) resolve}) {
+    Pickers.showSinglePicker<T>(
       context,
       data: data,
       selectData: selectData,
+      resolve: resolve,
       pickerStyle: DefaultPickerStyle(),
       suffix: label,
-      onConfirm: (p) {
+      onConfirm: (dynamic p) {
         print('longer >>> 返回数据：$p');
         print('longer >>> 返回数据类型：${p.runtimeType}');
         setState(() {
           if (data == PickerDataType.sex) {
-            selectSex = p;
+            selectSex = '$p';
           } else if (data == PickerDataType.education) {
-            selectEdu = p;
+            selectEdu = '$p';
           } else if (data == PickerDataType.subject) {
-            selectSubject = p;
+            selectSubject = '$p';
           } else if (data == PickerDataType.constellation) {
-            selectConstellation = p;
+            selectConstellation = '$p';
           } else if (data == PickerDataType.zodiac) {
-            selectZodiac = p;
+            selectZodiac = '$p';
           } else if (data == PickerDataType.ethnicity) {
-            selectEthnicity = p;
+            selectEthnicity = '$p';
           }
         });
       },
