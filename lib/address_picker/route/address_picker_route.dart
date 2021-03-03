@@ -114,6 +114,7 @@ class _PickerContentView extends StatefulWidget {
 
 class _PickerState extends State<_PickerContentView> {
   final PickerStyle _pickerStyle;
+
   // String _currentProvince, _currentCity, _currentTown;
   Address _address;
   List<MapEntry<String, String>> cities = [];
@@ -136,10 +137,8 @@ class _PickerState extends State<_PickerContentView> {
   _PickerState(
       // this._currentProvince, this._currentCity, this._currentTown,
       this._address,
-      this.addAllItem, this._pickerStyle) {
-    provinces = AddressService.provinces;
-    hasTown = this._address.townCode != null;
-
+      this.addAllItem,
+      this._pickerStyle) {
     _init();
   }
 
@@ -177,6 +176,8 @@ class _PickerState extends State<_PickerContentView> {
 
   _init() {
     AddressService.addAllItem = addAllItem;
+    provinces = AddressService.provinces;
+    hasTown = this._address.townCode != null;
     int pindex = 0;
     int cindex = 0;
     int tindex = 0;
@@ -420,8 +421,7 @@ class _PickerState extends State<_PickerContentView> {
           /// 确认按钮
           InkWell(
               onTap: () {
-                widget.route
-                    ?.onConfirm(_address);
+                widget.route?.onConfirm(_address);
                 Navigator.pop(context);
               },
               child: _pickerStyle.commitButton)

@@ -13,7 +13,7 @@ class AddressPickerPage extends StatefulWidget {
 class _AddressPickerPageState extends State<AddressPickerPage> {
   // 所在区域  省 市 区
   // String initProvince = '四川省', initCity = '成都市', initTown = '双流区';
-  Address initAddress = Address('四川省', '成都市', '双流区');
+  Address initAddress = Address('北京市', '市辖区', '东城区');
 
   // 选择器2
   List locations1 = ['', ''];
@@ -56,6 +56,7 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
           // initCity: initCity,
           // initTown: initTown,
           initAddress: initAddress,
+          addAllItem: false,
           onConfirm: (Address address) {
             setState(() {
               // initProvince = p;

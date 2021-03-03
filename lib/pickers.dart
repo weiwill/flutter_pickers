@@ -112,7 +112,7 @@ class Pickers {
     // String initCity: '',
     // String initTown,
     Address initAddress,
-    bool addAllItem: true,
+    bool addAllItem: false,
     AddressCallback onChanged,
     AddressCallback onConfirm,
   }) {
