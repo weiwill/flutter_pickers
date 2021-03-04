@@ -67,6 +67,7 @@ class AddressPickerRoute<T> extends PopupRoute<T> {
         initAddress: initAddress,
         addAllItem: addAllItem,
         pickerStyle: pickerStyle,
+        limitAdcode: limitAdcode,
         route: this,
       ),
     );

@@ -4532,15 +4532,16 @@ class AddressService {
   /// 是否限制省市区内容显示
   final Set<String> limitAdcode;
 
-  AddressService({this.addAllItem = true, this.limitAdcode = const {}});
+  AddressService({this.addAllItem = true, this.limitAdcode});
+
+  bool _limit(MapEntry<String, String> e) => limitAdcode == null || limitAdcode.contains(e.key);
 
   List<MapEntry<String, String>> get provinces {
     final list = locations['86'].entries.toList();
     if (addAllItem) {
       list.insert(0, MapEntry('', '全部'));
     }
-    final limit = (MapEntry<String, String> e) => limitAdcode == null || limitAdcode.length == 0 || limitAdcode.contains(e.key);
-    return list.where(limit).toList();
+    return list.where(_limit).toList();
   }
 
   List<MapEntry<String, String>> getCities(
@@ -4559,11 +4560,8 @@ class AddressService {
     // print('longer >>>$code 城市数据：$areaList');
     List<MapEntry<String, String>> data = [];
     if (areaList != null && addAllItem) data.add(emptyData);
-    // areaList.forEach((key, value) {
-    //   data.add({'name': value, 'cityCode': key});
-    // });
     data.addAll(areaList.entries);
-    return data;
+    return data.where(_limit).toList();
   }
 
   List<MapEntry<String, String>> getTowns(
@@ -4577,7 +4575,7 @@ class AddressService {
     } else {
       // var data = areaList.values.toList();
       if (addAllItem) areaList.insert(0, MapEntry('', '全部'));
-      return areaList;
+      return areaList.where(_limit).toList();
     }
   }
 
