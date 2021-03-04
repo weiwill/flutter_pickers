@@ -179,7 +179,7 @@ class _PickerState extends State<_PickerContentView> {
     // pindex = provinces.indexWhere((p) => p == _currentProvince);
     pindex = pindex >= 0 ? pindex : 0;
     MapEntry<String, String> selectedProvince = provinces[pindex];
-    if (selectedProvince != null) {
+    if (_address != null && selectedProvince != null) {
       // _currentProvince = selectedProvince;
       _address.provinceCode = selectedProvince.key;
       _address.provinceName = selectedProvince.value;
