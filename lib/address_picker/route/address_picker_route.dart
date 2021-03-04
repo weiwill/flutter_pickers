@@ -209,6 +209,9 @@ class _PickerState extends State<_PickerContentView> {
           }
         }
       }
+
+
+
     }
 
     provinceScrollCtrl = new FixedExtentScrollController(initialItem: pindex);
@@ -229,16 +232,16 @@ class _PickerState extends State<_PickerContentView> {
         if (cities.length > 0) {
           _address.cityCode = cities[0].key;
           _address.cityName = cities[0].value;
-          cityScrollCtrl?.jumpToItem(-1);
-          cityScrollCtrl?.jumpToItem(0);
+          cityScrollCtrl.jumpToItem(1);
+          cityScrollCtrl.jumpToItem(0);
           if (hasTown) {
             towns = addressService.getTowns(cities[0]);
             // _currentTown = towns[0];
             if (towns.length > 0) {
               _address.townCode = towns[0].key;
               _address.townName = towns[0].value;
-              townScrollCtrl?.jumpToItem(-1);
-              townScrollCtrl?.jumpToItem(0);
+              townScrollCtrl.jumpToItem(1);
+              townScrollCtrl.jumpToItem(0);
             }
           }
         }
@@ -264,8 +267,8 @@ class _PickerState extends State<_PickerContentView> {
             _address.townCode = '';
             _address.townName = '';
           }
-          townScrollCtrl?.jumpToItem(-1);
-          townScrollCtrl?.jumpToItem(0);
+          townScrollCtrl.jumpToItem(1);
+          townScrollCtrl.jumpToItem(0);
         }
       });
 
