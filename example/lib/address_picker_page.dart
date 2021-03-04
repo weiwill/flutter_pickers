@@ -14,6 +14,7 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
   // 所在区域  省 市 区
   // String initProvince = '四川省', initCity = '成都市', initTown = '双流区';
   Address initAddress = Address('北京市', '市辖区', '东城区');
+  Address initAddress2 = Address('', '', '');
 
   // 选择器2
   List locations1 = ['', ''];
@@ -21,47 +22,27 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
   // 选择器3
   List locations2 = ['四川省', '成都市', '双流区'];
 
+  // Set<String> limitAdcodes = {
+  //   '150000',
+  //   '150400',
+  //   '150300',
+  //   '150200',
+  //   '150421',
+  //   '150304',
+  //   '150203',
+  // };
+
   Set<String> limitAdcodes = {
     '150000',
-    // '130000',
-    // '140000',
-    // '320000',
-    // '340000',
-    // '110000',
-    // '310000',
-    // '330000',
-    // '430000',
-    // '370000',
-    // '610000',
-    // '120000',
-    // '220000',
-    '150400',
-    '150300',
-    '150200',
-    // '130200',
-    // '130300',
-    // '140400',
-    // '320500',
-    // '320100',
-    // '340200',
-    // '340800',
-    // '340100',
-    // '110100',
-    // '310100',
-    // '330200',
-    // '330300',
-    // '330100',
-    // '430700',
-    // '370800',
-    // '610300',
-    // '120100',
-    // '220300',
-    '150421',
-    '150304',
-    '150203',
-    // '130204',
-    // '130302',
-    // '140423'
+    '340000',
+    '340200',
+    '340207',
+    // '410000',
+    // '150000',
+    // '150400',
+    // '150300',
+    // '150304',
+    // '150421',
   };
 
   @override
@@ -78,7 +59,6 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
             SizedBox(height: 20),
             Text('二级地址选择'),
             _checkLocation2(),
-
             SizedBox(height: 20),
             Text('更多参数说明'),
             SizedBox(height: 6),
@@ -224,16 +204,15 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
   }
 
   Widget _checkLocation4() {
-    Widget textView =
-    Text(spliceCityName(
-        pname: initAddress.provinceName,
-        cname: initAddress.cityName,
-        tname: initAddress.townName));
+    Widget textView = Text(spliceCityName(
+        pname: initAddress2.provinceName,
+        cname: initAddress2.cityName,
+        tname: initAddress2.townName));
     return InkWell(
       onTap: () {
         Pickers.showAddressPicker(
           context,
-          initAddress: initAddress,
+          initAddress: initAddress2,
           limitAdcode: limitAdcodes,
           onConfirm: (Address address) {
             setState(() {

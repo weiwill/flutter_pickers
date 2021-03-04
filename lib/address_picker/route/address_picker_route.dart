@@ -207,11 +207,10 @@ class _PickerState extends State<_PickerContentView> {
             _address.townCode = towns[tindex].key;
             _address.townName = towns[tindex].value;
           }
+        } else {
+          towns = [];
         }
       }
-
-
-
     }
 
     provinceScrollCtrl = new FixedExtentScrollController(initialItem: pindex);
@@ -226,24 +225,27 @@ class _PickerState extends State<_PickerContentView> {
       setState(() {
         _address.provinceCode = selectedProvince.key;
         _address.provinceName = selectedProvince.value;
-
+        _address.cityCode = '';
+        _address.cityName = '';
+        _address.townCode = '';
+        _address.townName = '';
         cities = addressService.getCities(selectedProvince);
         // print('longer >>> 返回的城市数据：$cities');
         if (cities.length > 0) {
           _address.cityCode = cities[0].key;
           _address.cityName = cities[0].value;
-          cityScrollCtrl.jumpToItem(1);
-          cityScrollCtrl.jumpToItem(0);
+          // cityScrollCtrl.jumpToItem(0);
           if (hasTown) {
             towns = addressService.getTowns(cities[0]);
             // _currentTown = towns[0];
             if (towns.length > 0) {
               _address.townCode = towns[0].key;
               _address.townName = towns[0].value;
-              townScrollCtrl.jumpToItem(1);
-              townScrollCtrl.jumpToItem(0);
+              // townScrollCtrl.jumpToItem(0);
             }
           }
+        } else {
+          towns = [];
         }
       });
 
@@ -263,12 +265,13 @@ class _PickerState extends State<_PickerContentView> {
           if (towns != null && towns.length > 0) {
             _address.townCode = towns[0].key;
             _address.townName = towns[0].value;
+            // townScrollCtrl.jumpToItem(0);
           } else {
             _address.townCode = '';
             _address.townName = '';
           }
-          townScrollCtrl.jumpToItem(1);
-          townScrollCtrl.jumpToItem(0);
+        } else {
+          towns = [];
         }
       });
 
@@ -287,6 +290,7 @@ class _PickerState extends State<_PickerContentView> {
   }
 
   void _notifyLocationChanged() {
+    _forceLayout();
     if (widget.route.onChanged != null) {
       widget.route.onChanged(_address);
     }
@@ -323,6 +327,25 @@ class _PickerState extends State<_PickerContentView> {
     return Column(children: viewList);
   }
 
+  /// CupertinoPicker.builder的刷新BUG
+  /// https://github.com/flutter/flutter/issues/22999#issuecomment-702794310
+  double _squeeze = 1;
+  _forceLayout(){
+    setState(() {
+      if (_squeeze == 1) {
+        _squeeze = 1.000000000000001;
+      } else {
+        _squeeze = 1;
+      }
+      if (cities.length > 0) {
+        cityScrollCtrl.jumpToItem(0);
+      }
+      if (towns.length > 0) {
+        townScrollCtrl.jumpToItem(0);
+      }
+    });
+  }
+
   Widget _renderItemView() {
     return Container(
       height: _pickerStyle.pickerHeight,
@@ -333,6 +356,7 @@ class _PickerState extends State<_PickerContentView> {
             child: Container(
               padding: const EdgeInsets.all(8.0),
               child: CupertinoPicker.builder(
+                squeeze: _squeeze,
                 scrollController: provinceScrollCtrl,
                 itemExtent: _pickerStyle.pickerItemHeight,
                 onSelectedItemChanged: (int index) {
@@ -356,6 +380,7 @@ class _PickerState extends State<_PickerContentView> {
             child: Container(
                 padding: EdgeInsets.all(8.0),
                 child: CupertinoPicker.builder(
+                  squeeze: _squeeze,
                   scrollController: cityScrollCtrl,
                   itemExtent: _pickerStyle.pickerItemHeight,
                   onSelectedItemChanged: (int index) {
@@ -380,6 +405,7 @@ class _PickerState extends State<_PickerContentView> {
                   child: Container(
                       padding: EdgeInsets.all(8.0),
                       child: CupertinoPicker.builder(
+                        squeeze: _squeeze,
                         scrollController: townScrollCtrl,
                         itemExtent: _pickerStyle.pickerItemHeight,
                         onSelectedItemChanged: (int index) {
@@ -388,6 +414,7 @@ class _PickerState extends State<_PickerContentView> {
                         childCount: towns.length,
                         itemBuilder: (_, index) {
                           String text = towns[index].value;
+                          // print('>>> text: $text, towns: $towns');
                           return Align(
                             alignment: Alignment.center,
                             child: Text(text,
