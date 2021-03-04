@@ -215,7 +215,7 @@ class _PickerState extends State<_PickerContentView> {
   void _setProvince(int index) {
     MapEntry<String, String> selectedProvince = provinces[index];
     // print('longer >>> index:$index  _currentProvince:$_currentProvince selectedProvince:$selectedProvince ');
-    if (_address.provinceCode != selectedProvince.key) {
+    if (_address == null || _address.provinceCode != selectedProvince.key) {
       setState(() {
         _address.provinceCode = selectedProvince.key;
         _address.provinceName = selectedProvince.value;
@@ -244,7 +244,7 @@ class _PickerState extends State<_PickerContentView> {
   void _setCity(int index) {
     index = cities.length > index ? index : 0;
     MapEntry<String, String> selectedCity = cities[index];
-    if (_address.cityCode != selectedCity.key) {
+    if (_address == null || _address.cityCode != selectedCity.key) {
       setState(() {
         _address.cityCode = selectedCity.key;
         _address.cityName = selectedCity.value;
@@ -269,7 +269,7 @@ class _PickerState extends State<_PickerContentView> {
   void _setTown(int index) {
     index = towns.length > index ? index : 0;
     MapEntry<String, String> selectedTown = towns[index];
-    if (_address.townCode != selectedTown.key) {
+    if (_address == null || _address.townCode != selectedTown.key) {
       _address.townCode = selectedTown.key;
       _address.townName = selectedTown.value;
       _notifyLocationChanged();
