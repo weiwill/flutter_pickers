@@ -171,11 +171,11 @@ class _PickerState extends State<_PickerContentView> {
   _init() {
     addressService = AddressService(addAllItem: addAllItem, limitAdcode: limitAdcode);
     provinces = addressService.provinces;
-    hasTown = this._address.townCode != null;
+    hasTown = _address?.townCode != null;
     int pindex = 0;
     int cindex = 0;
     int tindex = 0;
-    pindex = provinces.indexWhere((p) => p.key == _address.provinceCode);
+    pindex = _address == null ? 0 : provinces.indexWhere((p) => p.key == _address.provinceCode);
     // pindex = provinces.indexWhere((p) => p == _currentProvince);
     pindex = pindex >= 0 ? pindex : 0;
     MapEntry<String, String> selectedProvince = provinces[pindex];
