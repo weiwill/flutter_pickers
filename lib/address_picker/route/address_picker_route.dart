@@ -229,18 +229,21 @@ class _PickerState extends State<_PickerContentView> {
 
         cities = addressService.getCities(selectedProvince);
         // print('longer >>> 返回的城市数据：$cities');
-
-        _address.cityCode = cities[0].key;
-        _address.cityName = cities[0].value;
-        cityScrollCtrl.jumpToItem(-1);
-        cityScrollCtrl.jumpToItem(0);
-        if (hasTown) {
-          towns = addressService.getTowns(cities[0]);
-          // _currentTown = towns[0];
-          _address.townCode = towns[0].key;
-          _address.townName = towns[0].value;
-          townScrollCtrl.jumpToItem(-1);
-          townScrollCtrl.jumpToItem(0);
+        if (cities.length > 0) {
+          _address.cityCode = cities[0].key;
+          _address.cityName = cities[0].value;
+          cityScrollCtrl.jumpToItem(-1);
+          cityScrollCtrl.jumpToItem(0);
+          if (hasTown) {
+            towns = addressService.getTowns(cities[0]);
+            // _currentTown = towns[0];
+            if (towns.length > 0) {
+              _address.townCode = towns[0].key;
+              _address.townName = towns[0].value;
+              townScrollCtrl.jumpToItem(-1);
+              townScrollCtrl.jumpToItem(0);
+            }
+          }
         }
       });
 
