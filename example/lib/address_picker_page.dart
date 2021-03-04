@@ -21,6 +21,49 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
   // 选择器3
   List locations2 = ['四川省', '成都市', '双流区'];
 
+  Set<String> limitAdcodes = {
+    '150000',
+    '130000',
+    '140000',
+    '320000',
+    '340000',
+    '110000',
+    '310000',
+    '330000',
+    '430000',
+    '370000',
+    '610000',
+    '120000',
+    '220000',
+    '150400',
+    '150300',
+    '150200',
+    '130200',
+    '130300',
+    '140400',
+    '320500',
+    '320100',
+    '340200',
+    '340800',
+    '340100',
+    '110100',
+    '310100',
+    '330200',
+    '330300',
+    '330100',
+    '430700',
+    '370800',
+    '610300',
+    '120100',
+    '220300',
+    '150421',
+    '150304',
+    '150203',
+    '130204',
+    '130302',
+    '140423'
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,10 +78,14 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
             SizedBox(height: 20),
             Text('二级地址选择'),
             _checkLocation2(),
+
             SizedBox(height: 20),
             Text('更多参数说明'),
             SizedBox(height: 6),
             _checkLocation3(),
+            SizedBox(height: 20),
+            Text('限制显示地址'),
+            _checkLocation4(),
           ],
         ),
       ),
@@ -46,7 +93,10 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
   }
 
   Widget _checkLocation() {
-    Widget textView = Text(spliceCityName(pname: initAddress.provinceName, cname: initAddress.cityName, tname: initAddress.townName));
+    Widget textView = Text(spliceCityName(
+        pname: initAddress.provinceName,
+        cname: initAddress.cityName,
+        tname: initAddress.townName));
 
     return InkWell(
       onTap: () {
@@ -68,13 +118,14 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
           },
         );
       },
-      child: _outsideView(textView, initAddress.provinceName, initAddress.cityName, initAddress.townName),
+      child: _outsideView(textView, initAddress.provinceName,
+          initAddress.cityName, initAddress.townName),
     );
   }
 
   Widget _checkLocation2() {
-    Widget textView = Text(spliceCityName(pname: locations1[0], cname: locations1[1]));
-
+    Widget textView =
+        Text(spliceCityName(pname: locations1[0], cname: locations1[1]));
     return InkWell(
       onTap: () {
         Pickers.showAddressPicker(
@@ -109,24 +160,29 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
     Widget _cancelButton = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       margin: const EdgeInsets.only(left: 22),
-      decoration:
-          BoxDecoration(border: Border.all(color: Colors.white, width: 1), borderRadius: BorderRadius.circular(4)),
+      decoration: BoxDecoration(
+          border: Border.all(color: Colors.white, width: 1),
+          borderRadius: BorderRadius.circular(4)),
       child: MyText('取消', color: Colors.white, size: 14),
     );
 
     Widget _commitButton = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       margin: const EdgeInsets.only(right: 22),
-      decoration: BoxDecoration(color: Theme.of(context).primaryColor, borderRadius: BorderRadius.circular(4)),
+      decoration: BoxDecoration(
+          color: Theme.of(context).primaryColor,
+          borderRadius: BorderRadius.circular(4)),
       child: MyText('确认', color: Colors.white, size: 14),
     );
 
     // 头部样式
     Decoration headDecoration = BoxDecoration(
         color: Colors.grey[800],
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8)));
+        borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(8), topRight: Radius.circular(8)));
 
-    Widget title = Center(child: MyText('请选择地址', color: Colors.white, size: 14));
+    Widget title =
+        Center(child: MyText('请选择地址', color: Colors.white, size: 14));
 
     var pickerStyle = PickerStyle(
       menu: _headMenuView,
@@ -148,7 +204,7 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
           // initTown: locations2[2],
           initAddress: Address(locations2[0], locations2[1], locations2[2]),
 
-          pickerStyle : pickerStyle,
+          pickerStyle: pickerStyle,
 
           addAllItem: false,
           onConfirm: (Address address) {
@@ -160,8 +216,33 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
           },
         );
       },
-      child: Text(spliceCityName(pname: locations2[0], cname: locations2[1], tname: locations2[2]),
+      child: Text(
+          spliceCityName(
+              pname: locations2[0], cname: locations2[1], tname: locations2[2]),
           style: TextStyle(fontSize: 16)),
+    );
+  }
+
+  Widget _checkLocation4() {
+    Widget textView =
+    Text(spliceCityName(
+        pname: initAddress.provinceName,
+        cname: initAddress.cityName,
+        tname: initAddress.townName));
+    return InkWell(
+      onTap: () {
+        Pickers.showAddressPicker(
+          context,
+          initAddress: initAddress,
+          limitAdcode: limitAdcodes,
+          onConfirm: (Address address) {
+            setState(() {
+              initAddress = address;
+            });
+          },
+        );
+      },
+      child: _outsideView(textView, locations1[0], locations1[1], null),
     );
   }
 

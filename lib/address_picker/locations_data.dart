@@ -4526,18 +4526,24 @@ const locations = {
 };
 
 class AddressService {
-  static List<MapEntry<String, String>> get provinces {
+  // 是否在市、区级添加 全部选项
+  final bool addAllItem;
+
+  /// 是否限制省市区内容显示
+  final Set<String> limitAdcode;
+
+  AddressService({this.addAllItem = true, this.limitAdcode = const {}});
+
+  List<MapEntry<String, String>> get provinces {
     final list = locations['86'].entries.toList();
     if (addAllItem) {
       list.insert(0, MapEntry('', '全部'));
     }
-    return list;
+    final limit = (MapEntry<String, String> e) => limitAdcode == null || limitAdcode.length == 0 || limitAdcode.contains(e.key);
+    return list.where(limit).toList();
   }
 
-  // 是否在市、区级添加 全部选项
-  static bool addAllItem = true;
-
-  static List<MapEntry<String, String>> getCities(
+  List<MapEntry<String, String>> getCities(
       MapEntry<String, String> province) {
     var emptyData = MapEntry('', '全部');
     if (province.value == '全部' && addAllItem) return [emptyData];
@@ -4560,7 +4566,7 @@ class AddressService {
     return data;
   }
 
-  static List<MapEntry<String, String>> getTowns(
+  List<MapEntry<String, String>> getTowns(
       MapEntry<String, String> city) {
     if (PicketUtil.strEmpty(city.key)) return [MapEntry('', '全部')];
 
@@ -4576,7 +4582,7 @@ class AddressService {
   }
 
   // 拼接城市
-  static String spliceCityName({String pname, String cname, String tname}) {
+  String spliceCityName({String pname, String cname, String tname}) {
     if (PicketUtil.strEmpty(pname)) return '不限';
     StringBuffer sb = StringBuffer();
     sb.write(pname);
@@ -4593,7 +4599,7 @@ class AddressService {
   /// simple use
   /// List<String> cityCode =  Locations.getTownsCityCode("四川省","成都市","锦江区");
   /// return [510000,510100,510104]  or  [510000,510000]  or [510000]  or  []
-  static List<String> getCityCodeByName(
+  List<String> getCityCodeByName(
       {String initialProvinceName,
       String initialCityName,
       String initialTownName}) {
@@ -4661,7 +4667,7 @@ class AddressService {
   /// simple use
   /// List<String> cityName =  Locations.getCityNameByCode("510000","510100","510104");
   /// return [四川省, 成都市, 锦江区]  or  [四川省, 成都市]  or [四川省] or []
-  static List<String> getCityNameByCode(
+  List<String> getCityNameByCode(
       {String provinceCode, String cityCode, String townCode}) {
     List<String> cityName = [null, null, null];
 

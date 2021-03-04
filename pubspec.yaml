@@ -5,7 +5,7 @@ version: 1.0.1
 homepage: https://github.com/longer96/flutter_pickers
 
 environment:
-  sdk: ">=1.19.0 <3.0.0"
+  sdk: ">=2.2.0 <3.0.0"
   flutter: ">=0.4.1"
 
 dependencies:

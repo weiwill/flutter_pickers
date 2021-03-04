@@ -19,7 +19,7 @@ class Address {
       this.townCode, this.townName);
 
   factory Address(String provinceName, String cityName, String townName) {
-    List<String> cityCode = AddressService.getCityCodeByName(
+    List<String> cityCode = AddressService().getCityCodeByName(
         initialProvinceName: provinceName,
         initialCityName: cityName,
         initialTownName: townName);

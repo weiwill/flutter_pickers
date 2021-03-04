@@ -8,20 +8,17 @@ import '../locations_data.dart';
 typedef AddressCallback(Address address);
 
 /// 自定义 地区选择器
-/// [initProvince] 初始化 省
-/// [initCity]    初始化 市
-/// [initTown]    初始化 区
-/// [onChanged]   选择器发生变动
-/// [onConfirm]   选择器提交
-/// [addAllItem] 市、区是否添加 '全部' 选项     默认：true
+/// * [initAddress] 初始化 地址
+/// * [limitAdcode] 只显示传入的 adcode的省市区内容   默认null则全部显示
+/// * [onChanged]   选择器发生变动
+/// * [onConfirm]   选择器提交
+/// * [addAllItem] 市、区是否添加 '全部' 选项     默认：true
 class AddressPickerRoute<T> extends PopupRoute<T> {
   AddressPickerRoute({
     this.addAllItem,
     this.pickerStyle,
-    // this.initProvince,
-    // this.initCity,
-    // this.initTown,
     this.initAddress,
+    this.limitAdcode,
     this.onChanged,
     this.onConfirm,
     this.theme,
@@ -29,8 +26,8 @@ class AddressPickerRoute<T> extends PopupRoute<T> {
     RouteSettings settings,
   }) : super(settings: settings);
 
-  // final String initProvince, initCity, initTown;
   final Address initAddress;
+  final Set<String> limitAdcode;
   final AddressCallback onChanged;
   final AddressCallback onConfirm;
   final ThemeData theme;
@@ -67,9 +64,6 @@ class AddressPickerRoute<T> extends PopupRoute<T> {
       context: context,
       removeTop: true,
       child: _PickerContentView(
-        // initProvince: initProvince,
-        // initCity: initCity,
-        // initTown: initTown,
         initAddress: initAddress,
         addAllItem: addAllItem,
         pickerStyle: pickerStyle,
@@ -87,35 +81,30 @@ class AddressPickerRoute<T> extends PopupRoute<T> {
 class _PickerContentView extends StatefulWidget {
   _PickerContentView({
     Key key,
-    // this.initProvince,
-    // this.initCity,
-    // this.initTown,
     this.initAddress,
     this.pickerStyle,
     this.addAllItem,
+    this.limitAdcode,
     @required this.route,
   }) : super(key: key);
 
-  // final String initProvince, initCity, initTown;
   final Address initAddress;
   final AddressPickerRoute route;
   final bool addAllItem;
+  final Set<String> limitAdcode;
   final PickerStyle pickerStyle;
 
   @override
   State<StatefulWidget> createState() => _PickerState(
-      // this.initProvince,
-      // this.initCity,
-      // this.initTown,
       this.initAddress,
       this.addAllItem,
+      this.limitAdcode,
       this.pickerStyle);
 }
 
 class _PickerState extends State<_PickerContentView> {
   final PickerStyle _pickerStyle;
 
-  // String _currentProvince, _currentCity, _currentTown;
   Address _address;
   List<MapEntry<String, String>> cities = [];
   List<MapEntry<String, String>> towns = [];
@@ -124,8 +113,12 @@ class _PickerState extends State<_PickerContentView> {
   // 是否显示县级
   bool hasTown = true;
 
+  AddressService addressService;
+
   // 是否添加全部
   final bool addAllItem;
+
+  final Set<String> limitAdcode;
 
   AnimationController controller;
   Animation<double> animation;
@@ -135,9 +128,9 @@ class _PickerState extends State<_PickerContentView> {
       townScrollCtrl;
 
   _PickerState(
-      // this._currentProvince, this._currentCity, this._currentTown,
       this._address,
       this.addAllItem,
+      this.limitAdcode,
       this._pickerStyle) {
     _init();
   }
@@ -175,8 +168,8 @@ class _PickerState extends State<_PickerContentView> {
   }
 
   _init() {
-    AddressService.addAllItem = addAllItem;
-    provinces = AddressService.provinces;
+    addressService = AddressService(addAllItem: addAllItem, limitAdcode: limitAdcode);
+    provinces = addressService.provinces;
     hasTown = this._address.townCode != null;
     int pindex = 0;
     int cindex = 0;
@@ -189,7 +182,7 @@ class _PickerState extends State<_PickerContentView> {
       // _currentProvince = selectedProvince;
       _address.provinceCode = selectedProvince.key;
       _address.provinceName = selectedProvince.value;
-      cities = AddressService.getCities(selectedProvince);
+      cities = addressService.getCities(selectedProvince);
 
       cindex = cities.indexWhere((c) => c.key == _address.cityCode);
       cindex = cindex >= 0 ? cindex : 0;
@@ -200,7 +193,7 @@ class _PickerState extends State<_PickerContentView> {
       // print('longer >>> 外面接到的$cities');
 
       if (hasTown) {
-        towns = AddressService.getTowns(cities[cindex]);
+        towns = addressService.getTowns(cities[cindex]);
         tindex = towns.indexWhere((t) => t.key == _address.townCode);
         tindex = tindex >= 0 ? tindex : 0;
         if (towns.length == 0) {
@@ -226,7 +219,7 @@ class _PickerState extends State<_PickerContentView> {
         _address.provinceCode = selectedProvince.key;
         _address.provinceName = selectedProvince.value;
 
-        cities = AddressService.getCities(selectedProvince);
+        cities = addressService.getCities(selectedProvince);
         // print('longer >>> 返回的城市数据：$cities');
 
         _address.cityCode = cities[0].key;
@@ -234,7 +227,7 @@ class _PickerState extends State<_PickerContentView> {
         cityScrollCtrl.jumpToItem(-1);
         cityScrollCtrl.jumpToItem(0);
         if (hasTown) {
-          towns = AddressService.getTowns(cities[0]);
+          towns = addressService.getTowns(cities[0]);
           // _currentTown = towns[0];
           _address.townCode = towns[0].key;
           _address.townName = towns[0].value;
@@ -255,7 +248,7 @@ class _PickerState extends State<_PickerContentView> {
         _address.cityCode = selectedCity.key;
         _address.cityName = selectedCity.value;
         if (hasTown) {
-          towns = AddressService.getTowns(cities[index]);
+          towns = addressService.getTowns(cities[index]);
           if (towns != null && towns.length > 0) {
             _address.townCode = towns[0].key;
             _address.townName = towns[0].value;
@@ -334,9 +327,9 @@ class _PickerState extends State<_PickerContentView> {
                 onSelectedItemChanged: (int index) {
                   _setProvince(index);
                 },
-                childCount: AddressService.provinces.length,
+                childCount: provinces.length,
                 itemBuilder: (_, index) {
-                  String text = AddressService.provinces[index].value;
+                  String text = provinces[index].value;
                   return Align(
                       alignment: Alignment.center,
                       child: Text(text,

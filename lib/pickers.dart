@@ -99,19 +99,16 @@ class Pickers {
   }
 
   /// 自定义 地区选择器
-  /// [initProvince] 初始化 省
-  /// [initCity]    初始化 市
-  /// [initTown]    初始化 区
-  /// [onChanged]   选择器发生变动
-  /// [onConfirm]   选择器提交
-  /// [addAllItem] 市、区是否添加 '全部' 选项     默认：true
+  /// * [initAddress] 初始化地址
+  /// * [limitAdcode] 只显示传入的 adcode的省市区内容   默认null则全部显示
+  /// * [onChanged]   选择器发生变动
+  /// * [onConfirm]   选择器提交
+  /// * [addAllItem] 市、区是否添加 '全部' 选项     默认：true
   static void showAddressPicker(
     BuildContext context, {
     PickerStyle pickerStyle,
-    // String initProvince: '',
-    // String initCity: '',
-    // String initTown,
     Address initAddress,
+    Set<String> limitAdcode,
     bool addAllItem: false,
     AddressCallback onChanged,
     AddressCallback onConfirm,
@@ -127,10 +124,8 @@ class Pickers {
         context,
         AddressPickerRoute(
           pickerStyle: pickerStyle,
-          // initProvince: initProvince,
-          // initCity: initCity,
-          // initTown: initTown,
           initAddress: initAddress,
+          limitAdcode: limitAdcode,
           onChanged: onChanged,
           onConfirm: onConfirm,
           addAllItem: addAllItem,
