@@ -181,7 +181,7 @@ class _PickerState extends State<_PickerContentView> {
     pindex = provinces.indexWhere((p) => p.key == _address.provinceCode);
     // pindex = provinces.indexWhere((p) => p == _currentProvince);
     pindex = pindex >= 0 ? pindex : 0;
-    MapEntry<String, String> selectedProvince = provinces[pindex];
+    MapEntry<String, String> selectedProvince = provinces.length > 0 ? provinces[pindex]: null;
     if (selectedProvince != null) {
       // _currentProvince = selectedProvince;
       _address.provinceCode = selectedProvince.key;
@@ -190,24 +190,28 @@ class _PickerState extends State<_PickerContentView> {
 
       cindex = cities.indexWhere((c) => c.key == _address.cityCode);
       cindex = cindex >= 0 ? cindex : 0;
-      MapEntry<String, String> _currentCity = cities[cindex];
-      _address.cityCode = _currentCity.key;
-      _address.cityName = _currentCity.value;
+      MapEntry<String, String> _currentCity = cities.length > 0 ? cities[cindex] : null;
+      if (_currentCity != null) {
+        _address.cityCode = _currentCity.key;
+        _address.cityName = _currentCity.value;
+        // print('longer >>> 外面接到的$cities');
 
-      // print('longer >>> 外面接到的$cities');
-
-      if (hasTown) {
-        towns = addressService.getTowns(cities[cindex]);
-        tindex = towns.indexWhere((t) => t.key == _address.townCode);
-        tindex = tindex >= 0 ? tindex : 0;
-        if (towns.length == 0) {
-          _address.townCode = '';
-          _address.townName = '';
-        } else {
-          _address.townCode = towns[tindex].key;
-          _address.townName = towns[tindex].value;
+        if (hasTown) {
+          towns = addressService.getTowns(cities[cindex]);
+          tindex = towns.indexWhere((t) => t.key == _address.townCode);
+          tindex = tindex >= 0 ? tindex : 0;
+          if (towns.length == 0) {
+            _address.townCode = '';
+            _address.townName = '';
+          } else {
+            _address.townCode = towns[tindex].key;
+            _address.townName = towns[tindex].value;
+          }
         }
       }
+
+
+
     }
 
     provinceScrollCtrl = new FixedExtentScrollController(initialItem: pindex);
