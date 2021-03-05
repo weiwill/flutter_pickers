@@ -97,10 +97,7 @@ class _PickerContentView extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() => _PickerState(
-      this.initAddress,
-      this.addAllItem,
-      this.limitAdcode,
-      this.pickerStyle);
+      this.initAddress, this.addAllItem, this.limitAdcode, this.pickerStyle);
 }
 
 class _PickerState extends State<_PickerContentView> {
@@ -129,10 +126,7 @@ class _PickerState extends State<_PickerContentView> {
       townScrollCtrl;
 
   _PickerState(
-      this._address,
-      this.addAllItem,
-      this.limitAdcode,
-      this._pickerStyle) {
+      this._address, this.addAllItem, this.limitAdcode, this._pickerStyle) {
     _init();
   }
 
@@ -169,9 +163,10 @@ class _PickerState extends State<_PickerContentView> {
   }
 
   _init() {
-    addressService = AddressService(addAllItem: addAllItem, limitAdcode: limitAdcode);
+    addressService =
+        AddressService(addAllItem: addAllItem, limitAdcode: limitAdcode);
     if (_address == null) {
-      _address = Address('','','');
+      _address = Address('', '', '');
     }
     provinces = addressService.provinces;
     hasTown = _address?.townCode != null;
@@ -181,7 +176,8 @@ class _PickerState extends State<_PickerContentView> {
     pindex = provinces.indexWhere((p) => p.key == _address.provinceCode);
     // pindex = provinces.indexWhere((p) => p == _currentProvince);
     pindex = pindex >= 0 ? pindex : 0;
-    MapEntry<String, String> selectedProvince = provinces.length > 0 ? provinces[pindex]: null;
+    MapEntry<String, String> selectedProvince =
+        provinces.length > 0 ? provinces[pindex] : null;
     if (selectedProvince != null) {
       // _currentProvince = selectedProvince;
       _address.provinceCode = selectedProvince.key;
@@ -190,7 +186,8 @@ class _PickerState extends State<_PickerContentView> {
 
       cindex = cities.indexWhere((c) => c.key == _address.cityCode);
       cindex = cindex >= 0 ? cindex : 0;
-      MapEntry<String, String> _currentCity = cities.length > 0 ? cities[cindex] : null;
+      MapEntry<String, String> _currentCity =
+          cities.length > 0 ? cities[cindex] : null;
       if (_currentCity != null) {
         _address.cityCode = _currentCity.key;
         _address.cityName = _currentCity.value;
@@ -249,7 +246,7 @@ class _PickerState extends State<_PickerContentView> {
         }
       });
 
-      _notifyLocationChanged();
+      _notifyLocationChanged(type: 'province');
     }
   }
 
@@ -275,7 +272,7 @@ class _PickerState extends State<_PickerContentView> {
         }
       });
 
-      _notifyLocationChanged();
+      _notifyLocationChanged(type: 'city');
     }
   }
 
@@ -285,15 +282,15 @@ class _PickerState extends State<_PickerContentView> {
     if (_address.townCode != selectedTown.key) {
       _address.townCode = selectedTown.key;
       _address.townName = selectedTown.value;
-      _notifyLocationChanged();
+      _notifyLocationChanged(type: 'town');
     }
   }
 
-  void _notifyLocationChanged() {
-    _forceLayout();
+  void _notifyLocationChanged({String type = ''}) {
     if (widget.route.onChanged != null) {
       widget.route.onChanged(_address);
     }
+    _forceLayout(type: type);
   }
 
   double _pickerFontSize(String text) {
@@ -330,19 +327,28 @@ class _PickerState extends State<_PickerContentView> {
   /// CupertinoPicker.builder的刷新BUG
   /// https://github.com/flutter/flutter/issues/22999#issuecomment-702794310
   double _squeeze = 1;
-  _forceLayout(){
+
+  _forceLayout({String type = ''}) {
     setState(() {
       if (_squeeze == 1) {
         _squeeze = 1.000000000000001;
       } else {
         _squeeze = 1;
       }
-      if (cities.length > 0) {
-        cityScrollCtrl.jumpToItem(0);
-      }
-      if (towns.length > 0) {
-        townScrollCtrl.jumpToItem(0);
-      }
+    });
+    setState(() {
+      try {
+        if (cities.length > 0 &&
+            cityScrollCtrl.selectedItem > 0 &&
+            type == 'province') {
+          cityScrollCtrl.jumpToItem(0);
+        }
+        if (towns.length > 0 &&
+            townScrollCtrl.selectedItem > 0 &&
+            (type == 'province' || type == 'city')) {
+          townScrollCtrl.jumpToItem(0);
+        }
+      } catch (e) {}
     });
   }
 
