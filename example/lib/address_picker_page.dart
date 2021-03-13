@@ -114,6 +114,7 @@ class _AddressPickerPageState extends State<AddressPickerPage> {
           // initCity: locations1[1],
           // initTown: null,
           initAddress: Address(locations1[0], locations1[1], null),
+          hasTown: false,
           onConfirm: (Address address) {
             setState(() {
               locations1[0] = address.provinceName;

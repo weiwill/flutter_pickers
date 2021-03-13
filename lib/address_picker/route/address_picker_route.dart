@@ -23,6 +23,7 @@ class AddressPickerRoute<T> extends PopupRoute<T> {
     this.onConfirm,
     this.theme,
     this.barrierLabel,
+    this.hasTown,
     RouteSettings settings,
   }) : super(settings: settings);
 
@@ -32,6 +33,7 @@ class AddressPickerRoute<T> extends PopupRoute<T> {
   final AddressCallback onConfirm;
   final ThemeData theme;
   final bool addAllItem;
+  final bool hasTown;
 
   final PickerStyle pickerStyle;
 
@@ -69,6 +71,7 @@ class AddressPickerRoute<T> extends PopupRoute<T> {
         pickerStyle: pickerStyle,
         limitAdcode: limitAdcode,
         route: this,
+        hasTown: hasTown,
       ),
     );
     if (theme != null) {
@@ -86,6 +89,7 @@ class _PickerContentView extends StatefulWidget {
     this.pickerStyle,
     this.addAllItem,
     this.limitAdcode,
+    this.hasTown,
     @required this.route,
   }) : super(key: key);
 
@@ -94,10 +98,11 @@ class _PickerContentView extends StatefulWidget {
   final bool addAllItem;
   final Set<String> limitAdcode;
   final PickerStyle pickerStyle;
+  final bool hasTown;
 
   @override
   State<StatefulWidget> createState() => _PickerState(
-      this.initAddress, this.addAllItem, this.limitAdcode, this.pickerStyle);
+      this.initAddress, this.addAllItem, this.limitAdcode, this.pickerStyle, this.hasTown);
 }
 
 class _PickerState extends State<_PickerContentView> {
@@ -109,7 +114,7 @@ class _PickerState extends State<_PickerContentView> {
   List<MapEntry<String, String>> provinces = [];
 
   // 是否显示县级
-  bool hasTown = true;
+  final bool hasTown;
 
   AddressService addressService;
 
@@ -126,7 +131,7 @@ class _PickerState extends State<_PickerContentView> {
       townScrollCtrl;
 
   _PickerState(
-      this._address, this.addAllItem, this.limitAdcode, this._pickerStyle) {
+      this._address, this.addAllItem, this.limitAdcode, this._pickerStyle, this.hasTown) {
     _init();
   }
 
@@ -169,7 +174,7 @@ class _PickerState extends State<_PickerContentView> {
       _address = Address('', '', '');
     }
     provinces = addressService.provinces;
-    hasTown = _address?.townCode != null;
+    // hasTown = _address?.townCode != null;
     int pindex = 0;
     int cindex = 0;
     int tindex = 0;

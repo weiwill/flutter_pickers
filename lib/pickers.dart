@@ -33,7 +33,10 @@ class Pickers {
     assert(data != null, 'params: data can not be null');
     assert((data is List<T>) || (data is PickerDataType),
         'params : data must List or PickerDataType');
-    assert((data is List<T>) && (resolve != null) || data is List<String> || data is PickerDataType,
+    assert(
+        (data is List<T>) && (resolve != null) ||
+            data is List<String> ||
+            data is PickerDataType,
         'if data is not type of List<String>, parameter resolve can not be null');
 
     if (pickerStyle == null) {
@@ -103,13 +106,15 @@ class Pickers {
   /// * [limitAdcode] 只显示传入的 adcode的省市区内容   默认null则全部显示
   /// * [onChanged]   选择器发生变动
   /// * [onConfirm]   选择器提交
-  /// * [addAllItem] 市、区是否添加 '全部' 选项     默认：true
+  /// * [addAllItem] 市、区是否添加 '全部' 选项     默认：false
+  /// * [hasTown] 是否显示县级     默认：true
   static void showAddressPicker(
     BuildContext context, {
     PickerStyle pickerStyle,
     Address initAddress,
     Set<String> limitAdcode,
     bool addAllItem: false,
+    bool hasTown: true,
     AddressCallback onChanged,
     AddressCallback onConfirm,
   }) {
@@ -129,6 +134,7 @@ class Pickers {
           onChanged: onChanged,
           onConfirm: onConfirm,
           addAllItem: addAllItem,
+          hasTown: hasTown,
           theme: Theme.of(context),
           barrierLabel:
               MaterialLocalizations.of(context).modalBarrierDismissLabel,
